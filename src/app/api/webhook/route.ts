@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
         case 'price.created':
         case 'price.updated':
           await upsertPriceRecord(event.data.object as Stripe.Price);
+          break;
         case 'customer.subscription.created':
         case 'customer.subscription.updated':
         case 'customer.subscription.deleted':

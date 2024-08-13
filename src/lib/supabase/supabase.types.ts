@@ -402,14 +402,7 @@ export interface Database {
     Enums: {
       pricing_plan_interval: 'day' | 'week' | 'month' | 'year';
       pricing_type: 'one_time' | 'recurring';
-      subscription_status:
-        | 'trialing'
-        | 'active'
-        | 'canceled'
-        | 'incomplete'
-        | 'incomplete_expired'
-        | 'past_due'
-        | 'unpaid';
+      subscription_status:'trialing' | 'active' | 'canceled' | 'incomplete' | 'incomplete_expired' | 'past_due'| 'unpaid';
     };
     CompositeTypes: {
       [_ in never]: never;

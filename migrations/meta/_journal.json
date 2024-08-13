@@ -64,6 +64,20 @@
       "when": 1698171444744,
       "tag": "0008_tranquil_franklin_storm",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1722691930418,
+      "tag": "0009_watery_nico_minoru",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1722692041061,
+      "tag": "0010_strong_monster_badoon",
+      "breakpoints": true
     }
   ]
 }

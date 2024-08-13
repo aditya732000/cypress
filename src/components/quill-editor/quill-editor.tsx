@@ -85,6 +85,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
 
   const details = useMemo(() => {
     let selectedDir;
+    console.log("FileID", fileId);
     if (dirType === 'file') {
       selectedDir = state.workspaces
         .find((workspace) => workspace.id === workspaceId)
@@ -101,10 +102,12 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
         (workspace) => workspace.id === fileId
       );
     }
+    console.log("SelectedDir", selectedDir);
 
     if (selectedDir) {
       return selectedDir;
     }
+    console.log("Why here");
 
     return {
       title: dirDetails.title,
@@ -115,6 +118,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
       bannerUrl: dirDetails.bannerUrl,
     } as workspace | Folder | File;
   }, [state, workspaceId, folderId]);
+  console.log(details?.bannerUrl)
 
   const breadCrumbs = useMemo(() => {
     if (!pathname || !state.workspaces || !workspaceId) return;
@@ -258,7 +262,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
         type: 'UPDATE_FILE',
         payload: { file: { bannerUrl: '' }, fileId, folderId, workspaceId },
       });
-      await supabase.storage.from('file-banners').remove([`banner-${fileId}`]);
+      await supabase.storage.from('banner').remove([`banner-${fileId}`]);
       await updateFile({ bannerUrl: '' }, fileId);
     }
     if (dirType === 'folder') {
@@ -267,7 +271,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
         type: 'UPDATE_FOLDER',
         payload: { folder: { bannerUrl: '' }, folderId: fileId, workspaceId },
       });
-      await supabase.storage.from('file-banners').remove([`banner-${fileId}`]);
+      await supabase.storage.from('banner').remove([`banner-${fileId}`]);
       await updateFolder({ bannerUrl: '' }, fileId);
     }
     if (dirType === 'workspace') {
@@ -278,7 +282,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
           workspaceId: fileId,
         },
       });
-      await supabase.storage.from('file-banners').remove([`banner-${fileId}`]);
+      await supabase.storage.from('banner').remove([`banner-${fileId}`]);
       await updateWorkspace({ bannerUrl: '' }, fileId);
     }
     setDeletingBanner(false);
@@ -383,6 +387,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
 
     const selectionChangeHandler = (cursorId: string) => {
       return (range: any, oldRange: any, source: any) => {
+        console.log(range,source)
         if (source === 'user' && cursorId) {
           socket.emit('send-cursor-move', range, fileId, cursorId);
         }
@@ -395,46 +400,48 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
       const contents = quill.getContents();
       const quillLength = quill.getLength();
       saveTimerRef.current = setTimeout(async () => {
-        // if (contents && quillLength !== 1 && fileId) {
-        //   if (dirType == 'workspace') {
-        //     dispatch({
-        //       type: 'UPDATE_WORKSPACE',
-        //       payload: {
-        //         workspace: { data: JSON.stringify(contents) },
-        //         workspaceId: fileId,
-        //       },
-        //     });
-        //     await updateWorkspace({ data: JSON.stringify(contents) }, fileId);
-        //   }
-        //   if (dirType == 'folder') {
-        //     if (!workspaceId) return;
-        //     dispatch({
-        //       type: 'UPDATE_FOLDER',
-        //       payload: {
-        //         folder: { data: JSON.stringify(contents) },
-        //         workspaceId,
-        //         folderId: fileId,
-        //       },
-        //     });
-        //     await updateFolder({ data: JSON.stringify(contents) }, fileId);
-        //   }
-        //   if (dirType == 'file') {
-        //     if (!workspaceId || !folderId) return;
-        //     dispatch({
-        //       type: 'UPDATE_FILE',
-        //       payload: {
-        //         file: { data: JSON.stringify(contents) },
-        //         workspaceId,
-        //         folderId: folderId,
-        //         fileId,
-        //       },
-        //     });
-        //     await updateFile({ data: JSON.stringify(contents) }, fileId);
-        //   }
-        // }
+        if (contents && quillLength !== 1 && fileId) {
+          if (dirType == 'workspace') {
+            dispatch({
+              type: 'UPDATE_WORKSPACE',
+              payload: {
+                workspace: { data: JSON.stringify(contents) },
+                workspaceId: fileId,
+              },
+            });
+            await updateWorkspace({ data: JSON.stringify(contents) }, fileId);
+          }
+          if (dirType == 'folder') {
+            if (!workspaceId) return;
+            dispatch({
+              type: 'UPDATE_FOLDER',
+              payload: {
+                folder: { data: JSON.stringify(contents) },
+                workspaceId,
+                folderId: fileId,
+              },
+            });
+            await updateFolder({ data: JSON.stringify(contents) }, fileId);
+          }
+          if (dirType == 'file') {
+            if (!workspaceId || !folderId) return;
+            dispatch({
+              type: 'UPDATE_FILE',
+              payload: {
+                file: { data: JSON.stringify(contents) },
+                workspaceId,
+                folderId: folderId,
+                fileId,
+              },
+            });
+            await updateFile({ data: JSON.stringify(contents) }, fileId);
+          }
+          console.log(1)
+        }
         setSaving(false);
       }, 850);
       socket.emit('send-changes', delta, fileId);
+      console.log(2)
     };
     quill.on('text-change', quillHandler);
     quill.on('selection-change', selectionChangeHandler(user.id));
@@ -641,7 +648,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
           <Image
             src={
               supabase.storage
-                .from('file-banners')
+                .from('banner')
                 .getPublicUrl(details.bannerUrl).data.publicUrl
             }
             fill

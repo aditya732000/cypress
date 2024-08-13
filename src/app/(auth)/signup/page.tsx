@@ -72,6 +72,7 @@ const Signup = () => {
   const isLoading = form.formState.isSubmitting;
   const onSubmit = async ({ email, password }: z.infer<typeof FormSchema>) => {
     const { error } = await actionSignUpUser({ email, password });
+    console.log(error)
     if (error) {
       setSubmitError(error.message);
       form.reset();

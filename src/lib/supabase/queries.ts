@@ -1,6 +1,6 @@
 'use server';
 import { validate } from 'uuid';
-import { files, folders, users, workspaces } from '../../../migrations/schema';
+import { files, folders, prices, users, workspaces } from '../../../migrations/schema';
 import db from './db';
 import { File, Folder, Subscription, User, workspace } from './supabase.types';
 import { and, eq, ilike, notExists } from 'drizzle-orm';
@@ -262,9 +262,11 @@ export const getActiveProductsWithPrice = async () => {
         },
       },
     });
+    console.log(res)
     if (res.length) return { data: res, error: null };
     return { data: [], error: null };
   } catch (error) {
+    console.log("Here")
     console.log(error);
     return { data: [], error };
   }
